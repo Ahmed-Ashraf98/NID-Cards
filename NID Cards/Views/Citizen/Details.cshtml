@@ -1,0 +1,166 @@
+﻿@using NID_Cards.Data.Enums
+
+@model NID_Cards.Models.Citizen;
+
+@{
+    IQueryable<Governorate> govs = ViewBag.AllEgyGovs;
+    IQueryable<BirthSite> birtsites = ViewBag.AllBirthSites;
+
+    var bsID = Model.BirthSiteID;
+    var birtsite =birtsites.Single(x=>x.BirthSiteID == bsID) ;
+
+    var govID = Model.GovernorateID;
+     var governorate = govs.Single(x=>x.GovernorateID == govID);
+}
+
+
+<div>
+
+    <div class="col-6 mt-2">
+                <a asp-action="Index" class="btn btn-outline-secondary btn-block">
+                    <i class="bi bi-arrow-left"></i>
+                    Back </a>
+    </div>
+
+</div>
+
+<main id="Main-Details" class="row mt-1">
+
+    <section id="column-details-Left" class="col-sm-4">
+            
+             <div class="person-image-details">
+                        <img style="width:200px; height:200px" src="@($"data:image/*;base64,{Convert.ToBase64String(Model.PersonalPhoto)}")" alt="Personal Photo"/>
+             </div>
+
+             <div class="text-center">
+                        <p>@Model.Name</p>
+             </div>
+
+             <div class="text-center">
+                     <p>NID : @Model.NID</p>
+             </div>
+
+             <div class="text-center w-100" >
+                        <a id="Anchor-Button" class="btn btn-primary" asp-action="Edit" asp-route-nid="@Model.NID" >
+                            <i class="bi bi-pencil-square"></i>
+                            Update the information
+                         </a>
+             </div>
+
+
+
+    </section>
+
+
+       <section id="column-details-All-NIDCard-Info" class="row col-sm-8">
+          
+           <div class="flip-card mt-3 col-sm-8">
+                  <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                      <img style="width:400px;height:200px;" src="@($"data:image/*;base64,{Convert.ToBase64String(Model.NIDFrontImage)}")" alt="Front Card">
+                    </div>
+                    <div class="flip-card-back">
+                        <img style="width:400px;height:200px;" src="@($"data:image/*;base64,{Convert.ToBase64String(Model.NIDBackImage)}")" alt="Back Card">
+                    </div>
+                  </div>
+               </div>
+           
+    <section id="column-details-info" class="row">
+            
+            <div class="mt-4">
+            <h3>Information</h3>
+            <hr style="width:400px;border:3px solid gray;border-radius: 5px;"/>
+            </div>
+           <div class="col-sm-6 mt-4">
+            <div>
+            <p><span class="text-muted">Name :</span> @Model.Name </p>
+            </div>
+            
+            <div>
+            <p><span class="text-muted">NID :</span> @Model.NID </p>
+            </div>
+
+            <div>
+            <p><span class="text-muted">Birthdate :</span> @Model.BirthDate.ToString("dd/MM/yyyy") </p>
+            </div>
+            
+            <div>
+            <p><span class="text-muted"> Birth Site :</span> @(birtsite.BirthSiteName) </p>
+            </div>
+
+            <div>
+            <p><span class="text-muted"> Governorate :</span> @(governorate.GovernorateName) </p>
+            </div>
+
+            <div>
+            <p><span class="text-muted"> Religion :</span> @(Model.Religion=="M"? "Muslim":"Christian") </p>
+            </div>
+            
+            <div>
+            <p><span class="text-muted"> Marital Status :</span> @(Enum.GetName(typeof(MaritalStatusEnum),Model.MaritalStatus)) </p>
+            </div>
+
+                @if (Model.HusbandName == "")
+                {
+                    // do nothing 
+                }
+                else
+                {
+                   <div>
+                        <p><span class="text-muted"> Husband Name :</span> @(Model.HusbandName) </p>
+                  </div>
+               }
+             
+
+            <div>
+            <p><span class="text-muted"> Address :</span> @(Model.Address) </p>
+            </div>
+
+        </div>    
+            <div class="col-sm-6 mt-4">
+          
+            
+            <div>
+            <p><span class="text-muted">Issue Date :</span> @Model.DateOfIssue.ToString("dd/MM/yyyy") </p>
+            </div>
+
+              <div>
+            <p><span class="text-muted">Issue Place :</span> @Model.PlaceOfIssue </p>
+            </div>
+
+             <div>
+            <p><span class="text-muted"> Expiry Date :</span> @Model.ExpiryDate.ToString("dd/MM/yyyy") </p>
+            </div>
+            
+            <div>
+             @if (Model.NIDIsActive)
+                      {
+                         
+                    <p style="color:green"><span class="text-muted"> Card Status :</span> <i class="bi bi-check2-circle"></i> Active </p>
+           
+                       }
+                   else
+                     {
+                          <p style="color:red"><span class="text-muted"> Card Status :</span> <i class="bi bi-x-circle"></i> Expired  </p>
+                   }
+
+             </div>
+
+              <div>
+            <p><span class="text-muted"> Gender :</span> @(Model.Gender == "M"?"Male":"Female" ) </p>
+            </div>
+
+            <div>
+            <p><span class="text-muted"> Job Title :</span> @(Model.JobTitle) </p>
+            </div>
+
+        </div> 
+
+
+         </section>
+         </section>
+      
+
+       
+        
+  </main>

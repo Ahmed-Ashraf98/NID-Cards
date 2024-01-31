@@ -1,0 +1,508 @@
+﻿@using NID_Cards.Data.Enums
+@model NID_Cards.FormsModel.FormsCitizen;
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    IQueryable<Governorate> govs = ViewBag.AllEgyGovs;
+    IQueryable<BirthSite> birtsites = ViewBag.AllBirthSites;
+    bool modeIsCreate = ViewBag.CreateMode; 
+}
+
+<div class="mb-4">
+
+    
+    <h1> @(modeIsCreate? "Add a New " : " Edit the ") NID Card  </h1>
+
+</div>
+
+<div class="mt-5">
+
+ <div class="alert alert-warning d-flex align-items-center mt-4" role="alert">
+  
+         <i class="bi bi-exclamation-diamond-fill mx-1"></i>
+         <div class="p-1">
+            Please review the rules before completing the NID Form:
+         </div>
+         <ul>
+             <li>Citizens must be 16 years old or older to apply for a new NID card.</li>
+             <li>Only married females will have the option of adding the husband's name.</li>
+             <li>If the citizen is under 18 years of age, his status will automatically be single. </li>
+             <li>The issue date option value will start 16 years after the birthdate.</li>
+             <li>All images are required only when you add a <u>new</u> NID card.</li>
+         </ul>
+       </div>
+
+</div>
+
+ <section class="row">
+
+ <form method="post" asp-action="@(modeIsCreate ?"Create":"Edit")" enctype="multipart/form-data" class="row col-md-8">
+
+    <div id="column1" class="col-md-6" >
+            <div class="form-group mt-2">
+                <label class="text-muted" asp-for=Name></label>
+                <input type="text" class="form-control" asp-for="Name" maxlength=250/>
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+             <div class="form-group mt-2">
+                @if (Model.NID == 0)
+                {
+                 <label class="text-muted" asp-for=BirthDate></label>
+                <input class="form-control" value="" asp-for="BirthDate" max="@DateTime.Now.AddYears(-16).ToString("yyyy-MM-dd")" min="@DateTime.Now.AddYears(-122).ToString("yyyy-MM-dd")" />
+                    <span asp-validation-for="BirthDate" class="text-danger"></span>
+                    
+                }else{
+                             <label class="text-muted" asp-for=BirthDate></label>
+                <input class="form-control" asp-for="BirthDate" max="@DateTime.Now.AddYears(-16).ToString("yyyy-MM-dd")" min="@DateTime.Now.AddYears(-122).ToString("yyyy-MM-dd")" />
+                    <span asp-validation-for="BirthDate" class="text-danger"></span>
+                }
+
+            </div>
+             <div class="form-group mt-2">
+                <label class="text-muted" asp-for=Address></label>
+                <textarea class="form-control address" value="" asp-for="Address" rows=5 maxlength=700></textarea>
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mt-2">
+                <label class="text-muted" asp-for=GovernorateID></label>
+                <select class="form-control" asp-for="GovernorateID" asp-items="@(new SelectList(govs,"GovernorateID","GovernorateName"))">
+                    <option value="" selected disabled> ----- Select ----- </option>
+                </select>
+                <span asp-validation-for="GovernorateID" class="text-danger"></span>
+            </div>
+
+              <div class="form-group mt-2">
+                <label class="text-muted" asp-for=BirthSiteID></label>
+                <select class="form-control" asp-for="BirthSiteID" asp-items="@(new SelectList(birtsites,"BirthSiteID","BirthSiteName"))">
+                    <option value="" selected disabled> ----- Select ----- </option>
+                </select>
+                <span asp-validation-for="BirthSiteID" class="text-danger"></span>
+            </div>
+
+
+            <div class="form-group mt-2">
+
+                @if (Model.NID == 0 || modeIsCreate)
+                {
+                
+                <label class="sr-only text-muted" asp-for=NIDManualPart></label>
+                <div class="input-group mb-2">
+                       <div class="input-group-prepend" style="width:300px;">
+                         <div class="input-group-text" id ="auto-id-part">
+                             <span id="GenrYearNID">G-</span>
+                             <span id="YearNID">-YY-</span>
+                             <span id="MonthNID">-MM-</span>
+                             <span id="DayNID">-DD-</span>
+                             <span id="BSIDNID">-BSIDNID</span>
+                         </div>
+                       </div>
+                <input type="number" class="form-control w-10" asp-for="NIDManualPart" onKeyPress="if(this.value.length == 5) return false;"/>
+                 </div>
+                 <span asp-validation-for="NIDManualPart" class="text-danger"></span>
+
+                  <input type="text" class="d-none" asp-for="NIDAuto"/>
+                  <input type="text" class="d-none" asp-for="NID"/>
+
+                }else{
+
+                      <input type="hidden" asp-for="NID"/>
+                      <input type="hidden" asp-for="NIDManualPart"/>
+                }
+            
+            </div>
+      
+
+             <div class="form-group mt-2">
+                <label class="text-muted" asp-for=Gender></label>
+                 <div class ="justify-content mt-1">
+                    <span class="mx-3">
+                         <input  type="radio" asp-for="Gender" value="M"/> Male
+                    </span> 
+                    <span class="mx-3">
+                     <input  type="radio" asp-for="Gender"  value="F"/> Female
+                     </span> 
+                 </div>
+                 <span asp-validation-for="Gender" class="text-danger"></span>
+            </div>
+
+             <div class="form-group mt-2">
+             
+                   @if (Model.NID == 0 && modeIsCreate)
+                   {   
+                       
+                  <label class="text-muted" asp-for=MaritalStatus></label>
+                   <select asp-for=MaritalStatus class="form-control" asp-items="Html.GetEnumSelectList<MaritalStatusEnum>()">
+                       <option selected disabled >----- Select ----- </option>
+                       </select>
+                    <span asp-validation-for="MaritalStatus" class="text-danger"></span>
+              @*      <input type="hidden" asp-for="MaritalStatus"/>*@
+                   }else{
+                        <label class="text-muted" asp-for=MaritalStatus></label>
+                   <select asp-for=MaritalStatus class="form-control" asp-items="Html.GetEnumSelectList<MaritalStatusEnum>()">
+                       <option  disabled >----- Select ----- </option>
+                       </select>
+                    <span asp-validation-for="MaritalStatus" class="text-danger"></span>
+                   @* <input type="hidden" asp-for="MaritalStatus"/>*@
+                   }
+                    
+                
+            </div>
+
+            <div class="form-group mt-2">
+                @if (Model.NID == 0 && modeIsCreate)
+                {
+                       <label class="text-muted" asp-for=DateOfIssue></label>
+                <input class="form-control" value=""  asp-for="DateOfIssue" max="@DateTime.Now.Date.ToString("yyyy-MM-dd")"/>
+                <span asp-validation-for="DateOfIssue" class="text-danger"></span>
+
+                }else{
+                          <label class="text-muted" asp-for=DateOfIssue></label>
+                <input class="form-control" asp-for="DateOfIssue" max="@DateTime.Now.Date.ToString("yyyy-MM-dd")"/>
+                <span asp-validation-for="DateOfIssue" class="text-danger"></span>
+                }
+             
+            </div>
+    </div>
+
+    <div id="column2" class="col-md-5">
+            <div class="form-group mt-2">
+                <label class="text-muted" asp-for=PlaceOfIssue></label>
+                <input type="text" class="form-control" asp-for="PlaceOfIssue" maxlength=150/>
+                 <span asp-validation-for="PlaceOfIssue" class="text-danger"></span>
+            </div>
+            <div class="form-group mt-2">
+                <label class="text-muted" asp-for=JobTitle></label>
+                <input type="text" class="form-control" asp-for="JobTitle" maxlength=250/>
+                 <span asp-validation-for="JobTitle" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mt-3">
+                <label class="text-muted" asp-for=Religion></label>
+                 <div class ="justify-content mt-1">
+                    <span class="mx-3">
+                         <input  type="radio" asp-for="Religion" value="M"/> Muslim
+                    </span> 
+                    <span class="mx-3">
+                     <input  type="radio" asp-for="Religion" value="C"/> Christian
+                     </span> 
+                 </div>
+                 <span asp-validation-for="Religion" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mt-2 d-none">
+                <label class="text-muted" asp-for=HusbandName></label>
+                <input type="text" class="form-control" asp-for="HusbandName" maxlength=250/>
+                <span asp-validation-for="HusbandName" class="text-danger"></span>
+            </div>
+
+             <div class="text-muted mt-4">
+                <label class="form-label" asp-for=PersonalPhoto></label>
+                <input type="file" class="form-control" aria-label="Upload" asp-for="PersonalPhoto" accept=".jpg,.png"/>
+                <span asp-validation-for="PersonalPhoto" class="text-danger"></span>
+            </div>
+
+            <div class="text-muted mt-4">
+                <label class="form-label" asp-for=NIDFrontImage></label>
+                <input type="file" class="form-control" aria-label="Upload" asp-for="NIDFrontImage" accept=".jpg,.png"/>
+                <span asp-validation-for="NIDFrontImage" class="text-danger"></span>
+            </div>
+
+            <div class="text-muted mt-4">
+                <label class="form-label" asp-for=NIDBackImage></label>
+                <input type="file" class="form-control" aria-label="Upload" asp-for="NIDBackImage" accept=".jpg,.png"/>
+                <span asp-validation-for="NIDBackImage" class="text-danger"></span>
+            </div>
+
+    </div>
+
+      <div id="buttons-section" class="row mt-5 text-end">
+            <div class="col-6 mt-5">
+                <a asp-action="Index" class="btn btn-outline-secondary btn-block"> Cancel </a>
+            </div>
+              <div class="col-6 mt-5">
+                <button id="Save" type="submit" class="btn btn-outline-success w-100" > 
+                    Save
+                </button>
+            </div>
+         </div>
+
+    </form>
+
+ @* -------------------  Display Images Section Here {Out of the Form }--------------------- *@
+
+     <div id="column3" class="col-md-2 m-2 justify-content-md-start">
+       
+         <div class="Person-Image mb-3 text-center">
+             <img style="width:200px; height:200px;" src="@( Model.PersonalPhoto==null ?"https://www.onestophome.in/viewer_assets/images/faceIcon.png" : $"data:image/*;base64,{Convert.ToBase64String(Model.PersonalPhoto)}")" alt="Front Card">
+         </div>
+         
+         <div class="flip-card">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <img style="width:400px;height:200px;" src="@(Model.NIDFrontImage==null? "http://static1.squarespace.com/static/5898e29c725e25e7132d5a5a/58aa11bc9656ca13c4524c68/58aa11e99656ca13c45253e2/1487540713345/600x400-Image-Placeholder.jpg?format=original" : $"data:image/*;base64,{Convert.ToBase64String(Model.NIDFrontImage)}")" alt="Front Card">
+            </div>
+            <div class="flip-card-back">
+                <img style="width:400px;height:200px;" src="@( Model.NIDBackImage==null ? "http://static1.squarespace.com/static/5898e29c725e25e7132d5a5a/58aa11bc9656ca13c4524c68/58aa11e99656ca13c45253e2/1487540713345/600x400-Image-Placeholder.jpg?format=original" : $"data:image/*;base64,{Convert.ToBase64String(Model.NIDBackImage)}")" alt="Back Card">
+            </div>
+          </div>
+        </div>
+
+     </div>
+
+   </section>
+
+
+@section scripts {
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+     <script type="text/javascript"> 
+     
+
+         $(document).ready(function(){
+                
+              var gender = $("input[name='Gender']:checked").val();
+              var marital = $('#MaritalStatus').val();
+               if(gender=="F" && marital ==1 ){
+                    $('#HusbandName').parent().removeClass("d-none");
+               }
+
+                // ------------------ Set MIN DateOFIssue (on-load) -----------------
+                
+                if($("#BirthDate").val()==""){
+                    $(DateOfIssue).prop('disabled', true);
+                }else{
+
+                // ------------- (on-load) disable the MaritalStatus if < 18 -----------
+                var currentDate = new Date();
+                var inputDate = new Date($("#BirthDate").val());
+                var age = currentDate.getFullYear() - inputDate.getFullYear();
+                //alert(age);
+                if(age < 18){
+                    $('#MaritalStatus').prop('disabled', true);
+                }
+
+
+                 var currentBirth = new Date($("#BirthDate").val()); 
+                 var customCreation = new Date(currentBirth.setFullYear(currentBirth.getFullYear()+16));
+                 var customDate = customCreation.getFullYear().toString()+"-"+customCreation.getMonth().toString().padStart(2, '0')+"-"+customCreation.getDate().toString().padStart(2, '0'); 
+                     $(DateOfIssue).attr({"min":customDate});
+
+                var getBSite =$('#BirthSiteID').val();
+                var birtDateValue = new Date($("#BirthDate").val());
+                var birthYear = birtDateValue.getFullYear();
+                var birthMonth = birtDateValue.getMonth()+1;
+                var birthDay = birtDateValue.getDate();
+
+               birthYear >= 2000 ? $("#GenrYearNID").text("3"):$("#GenrYearNID").text("2");
+
+               $("#YearNID").text(birthYear.toString().substr(-2));
+               $("#MonthNID").text(birthMonth.toString().padStart(2, '0'));
+               $("#DayNID").text(birthDay.toString().padStart(2, '0'));
+               $("#BSIDNID").text(getBSite.toString().padStart(2,'0'));
+              }
+
+              
+               // ------------------ Display Personal Photo -----------------
+
+             $("#PersonalPhoto").on("change",function(){
+                
+                 var getImageName = $("#PersonalPhoto").val().split("\\").pop();
+
+                 var image =  window.URL.createObjectURL(this.files[0]);
+
+                 $(".Person-Image img").attr("src",image);
+
+
+             });
+
+             // ------------------ Display NID Front Image -----------------
+
+             $("#NIDFrontImage").on("change",function(){
+                
+                 var getImageName = $("#NIDFrontImage").val().split("\\").pop();
+
+                 var image =  window.URL.createObjectURL(this.files[0]);
+
+                 $(".flip-card-front img").attr("src",image);
+
+             });
+
+             // ------------------ Display NID Back Image -----------------
+
+             $("#NIDBackImage").on("change",function(){
+                
+                 var getImageName = $("#NIDBackImage").val().split("\\").pop();
+
+                 var image =  window.URL.createObjectURL(this.files[0]);
+
+                 $(".flip-card-back img").attr("src",image);
+
+             });
+
+     
+              // ------------------ Check Gender Input -----------------
+
+             $('input[type=radio][name=Gender]').change(function() {
+
+                var currentDate = new Date();
+                var birthDate = $("#BirthDate").val();
+                var inputDate = new Date(birthDate);
+                var age = currentDate.getFullYear() - inputDate.getFullYear();
+                var maritalStatus = $("#MaritalStatus").val();  
+              
+
+                if (this.value == 'M') {
+                     $('#HusbandName').val("");
+                     $('#HusbandName').parent().addClass("d-none");
+                }
+                else if (this.value == 'F' && age >= 18 && maritalStatus == 1 ) {
+                    $('#HusbandName').val("");
+                    $('#HusbandName').parent().removeClass("d-none");
+                }
+             });
+
+             // ------------------ Check Age -----------------
+
+             $('#BirthDate').on("change",function(){
+               var currentDate = new Date();
+               var inputDate = new Date(this.value);
+               var age = currentDate.getFullYear() - inputDate.getFullYear();
+
+                var currentBirth = new Date(this.value); 
+                var dateAfter16Years = new Date(currentBirth.setFullYear(currentBirth.getFullYear()+16));
+                var dateYearNum = dateAfter16Years.getFullYear();
+                var dateMonthNum = dateAfter16Years.getMonth()+1;
+                var dateDayNum = dateAfter16Years.getDate();
+                var customDateFull = dateYearNum.toString()+"-"+dateMonthNum.toString().padStart(2, '0')+"-"+dateDayNum.toString().padStart(2, '0');
+                
+                var birthdate= new Date(inputDate);
+
+                var birthYear =birthdate.getFullYear();
+                var birthMonth =birthdate.getMonth()+1;
+                var birthDay =birthdate.getDate();
+
+
+                if(birthYear >= 2000 ){
+                    $("#GenrYearNID").text("3");
+                }else{
+                     $("#GenrYearNID").text("2");
+                }
+
+
+                $("#YearNID").text(birthYear.toString().substr(-2));
+                $("#MonthNID").text(birthMonth.toString().padStart(2, '0'));
+                $("#DayNID").text(birthDay.toString().padStart(2, '0'));
+                
+              
+
+                $(DateOfIssue).attr({"min":customDateFull});
+                $(DateOfIssue).prop('disabled', false);
+
+                if(age < 18){
+                     
+                     $('#MaritalStatus').val('3');  // single 
+                     $('#MaritalStatus').prop('disabled', true);
+                     //alert($('#MaritalStatus').val());
+                     //
+                     $('#HusbandName').val("");
+                     $('#HusbandName').parent().addClass("d-none");
+                     
+                 }
+
+                  else{
+                     
+                     var marital = $('#MaritalStatus').val();
+                     $('#MaritalStatus').prop('disabled', false);
+                     //alert(marital);
+                     var gender = $("input[name='Gender']:checked").val();
+
+                        if(gender == "F" && marital == 1 ){
+                           
+                                $('#HusbandName').val("");
+                                $('#HusbandName').parent().removeClass("d-none");
+                        }
+                    }
+
+             });
+
+               // ------------------ Check Marital Status for Husband -----------------
+                  
+    
+               $('#MaritalStatus').on("change",function(){
+                   
+                   var value = this.value;
+
+                var currentDate = new Date();
+                var birthDate = $("#BirthDate").val();
+                var inputDate = new Date(birthDate);
+                var age = currentDate.getFullYear() - inputDate.getFullYear();
+                var maritalStatus = $("#MaritalStatus").val();  
+                var gender = $("input[name='Gender']:checked").val();
+
+                if(age >=18 && maritalStatus == 1 && gender == "F"){
+
+                      $('#HusbandName').val("");
+                      $('#HusbandName').parent().removeClass("d-none");
+
+                }else{
+                      $('#HusbandName').val("");
+                      $('#HusbandName').parent().addClass("d-none");
+                }
+                   
+
+
+             });
+
+
+             // ------------------ Check Birth Site Select to Update NID  -----------------
+
+
+               $('#BirthSiteID').on("change",function(){
+                    
+                   $("#BSIDNID").text(this.value.toString().padStart(2,'0'));
+               });
+
+             
+               // ------------------ Submit  -----------------
+
+               $("#Save").click(function( event ) {
+                 
+                   var isCreate = "@modeIsCreate";
+
+
+                   //$('#MaritalStatus').prop('disabled', false)
+
+                   if(isCreate.toString()=="True"){
+
+                   var manualNID = $("#NIDManualPart").val().toString();
+                   var autoNID = $("#GenrYearNID").text()+$("#YearNID").text()+$("#MonthNID").text()+$("#DayNID").text()+$("#BSIDNID").text();
+                   var allNID = autoNID+manualNID;
+                   var NIDasNumber=parseInt(allNID);
+                     $("#NIDAuto").val(autoNID);
+                     $("#NID").val(NIDasNumber);
+               
+                   }else{
+                        $("#NIDManualPart").val(12345); //default for edit 
+                   }
+
+                   if ($('form').valid()){
+                          $('#MaritalStatus').prop('disabled', false);
+                   }
+                   
+                  
+             });
+
+      });
+     
+     
+
+     </script>
+
+
+}
